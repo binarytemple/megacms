@@ -1,0 +1,4 @@
+
+
+class InvalidURLNodeReference(Exception):
+    pass

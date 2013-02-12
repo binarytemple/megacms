@@ -1,0 +1,5 @@
+{% with el=html_element|default:'div' %}
+    <{{el}} class="{{ css_classes|join:' ' }} widget" data-key="{{ key }}">
+        {% block content %}{% endblock %}
+    </{{el}}>
+{% endwith %}

@@ -1,0 +1,17 @@
+
+application: megacms
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: false
+
+handlers:
+- url: /favicon.ico
+  static_files: static/favicon.ico
+  upload: static/favicon.ico
+
+- url: /.*
+  script: wsgi.application
+
+env_variables:
+  DJANGO_SETTINGS_MODULE: 'megacms.settings'

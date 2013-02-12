@@ -1,0 +1,10 @@
+{% extends 'widgets/base.html' %}
+{% load widgets %}
+{% block content %}
+    {{ content|render_as_template }}
+    {% if children %}
+        {% for child in children %}
+            {{ child }}
+        {% endfor %}
+    {% endif %}
+{% endblock %}

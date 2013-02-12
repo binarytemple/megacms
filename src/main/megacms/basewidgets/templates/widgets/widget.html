@@ -1,0 +1,11 @@
+{% extends 'widgets/base.html' %}
+{% block content %}
+        {{ name }}
+        {% if children %}
+            <div class="megacms-children">
+                {% for child in children %}
+                    {{ child }}
+                {% endfor %}
+            </div>
+        {% endif %}
+{% endblock %}
