@@ -19,7 +19,7 @@ megacms.admin = (function () {
 
             if (parentNode === null) {
                 // If parentNode is null, the currentNode is a top-level widget.
-                topLevelWidgets.push(currentNode)
+                topLevelWidgets.push(currentNode);
             } else {
                 // It is a child of the parent node which was passed in.
                 parentNode.children.push(currentNode);
@@ -51,7 +51,7 @@ megacms.admin = (function () {
         prefix = '';
 
         for (i = 0; i < amount; i++) {
-            prefix += '    '
+            prefix += '    ';
         }
         return prefix + string;
     };
@@ -69,14 +69,13 @@ megacms.admin = (function () {
         inner(roots, 0);
     };
 
+    $(document).ready(function () {
+        // Prints a nested outline of all the widgets on the page.
+        megacms.admin.printWidgetTree(
+            megacms.admin.buildWidgetTree($('body'))
+        );
+    });
+
     return module;
 
 }());
-
-
-$(document).ready(function () {
-    // Prints a nested outline of all the widgets on the page.
-    megacms.admin.printWidgetTree(
-        megacms.admin.buildWidgetTree($('body'))
-    );
-});
