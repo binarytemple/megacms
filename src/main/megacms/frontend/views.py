@@ -230,7 +230,7 @@ def _find_redirect_url(node_response, element):
 
 
 def element_node(request, element):
-    use_cache = True
+    use_cache = False
     try:
         # TODO: This is a cheat!
         request.content_type = 'text/html'
