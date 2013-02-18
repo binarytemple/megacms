@@ -7,6 +7,6 @@ autodiscover_widgets()
 
 urlpatterns = patterns(
     '',
-    url(r'.*',
+    url(r'',
         include(megacms.frontend.urls)),
 )

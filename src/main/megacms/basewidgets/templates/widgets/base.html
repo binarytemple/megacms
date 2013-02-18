@@ -1,5 +1,5 @@
 {% with el=html_element|default:'div' %}
-    <{{el}} class="{{ css_classes|join:' ' }} widget" data-key="{{ key }}">
+    <{{el}} id="{{ key }}" class="{{ css_classes|join:' ' }} widget">
         {% block content %}{% endblock %}
     </{{el}}>
 {% endwith %}

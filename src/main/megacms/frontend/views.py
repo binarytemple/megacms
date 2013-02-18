@@ -30,6 +30,10 @@ log = logging.getLogger(__name__)
 _json_dumps = curry(json.dumps, cls=DjangoJSONEncoder)
 
 
+JSON_MIME = 'application/json'
+HTML_MIME = 'text/html'
+
+
 def _html_mapper(request, node, node_response, mapped_child_responses):
     """Map a NodeResponse to HTML.
 
@@ -124,7 +128,7 @@ def _handle_recursive(request, node, mapper, content_type, use_cache):
     if cache_key:
         mapped_response = _check_cache(cache_key)
         if mapped_response:
-            if content_type == 'text/html':
+            if content_type == HTML_MIME:
                 # This is a rendered template fragment.
                 mapped_response = mark_safe(mapped_response)
             return mapped_response
@@ -162,28 +166,27 @@ def _handle_recursive(request, node, mapper, content_type, use_cache):
 
 
 CONTENT_TYPE_HANDLERS = {
-    'application/json': _dict_mapper,
-    'text/html': _html_mapper,
+    JSON_MIME: _dict_mapper,
+    HTML_MIME: _html_mapper,
 }
 
 
-def _get_mapper(request):
-    # We can handle content-types properly!
+def _get_mapper(content_type):
     try:
-        return CONTENT_TYPE_HANDLERS[request.content_type]
+        return CONTENT_TYPE_HANDLERS[content_type]
     except KeyError:
         raise ContentTypeUnsupported()
 
 
 POST_PROCESSORS = {
-    'application/json': _json_dumps,
-    'text/html': lambda x: x,
+    JSON_MIME: _json_dumps,
+    HTML_MIME: lambda x: x,
 }
 
 
-def _get_post_processor(request):
+def _get_post_processor(content_type):
     try:
-        return POST_PROCESSORS[request.content_type], request.content_type
+        return POST_PROCESSORS[content_type]
     except KeyError:
         raise ContentTypeUnsupported()
 
@@ -231,21 +234,23 @@ def _find_redirect_url(node_response, element):
 
 def element_node(request, element):
     use_cache = False
+
+    accepted_types = _get_accepted_content_types(request)
+    content_type = JSON_MIME if _accepts_json(accepted_types) else HTML_MIME
+
     try:
-        # TODO: This is a cheat!
-        request.content_type = 'text/html'
         response_body = _handle_recursive(
             request,
             element,
-            _get_mapper(request),
-            request.content_type,
+            _get_mapper(content_type),
+            content_type,
             use_cache,
         )
-
-        post_processor, effective_content_type = _get_post_processor(request)
+        post_processor = _get_post_processor(content_type)
         return HttpResponse(
             post_processor(response_body),
-            content_type=effective_content_type)
+            content_type=content_type,
+        )
 
     except NotAllowed, e:
         return HttpResponseNotAllowed(e.permitted_methods)
@@ -260,10 +265,20 @@ def update_element(request, element_id):
     class Form(djangoforms.ModelForm):
         class Meta():
             model = element.__class__
+            exclude = ( '_class',) # PolyModel workaround
 
     return render_to_response('form.html', dict(
-        form=Form(),
+        form=Form(instance=element),
     ), RequestContext(request))
+
+
+def _get_accepted_content_types(request):
+    return [a.split(';')[0] for a in request.META['HTTP_ACCEPT'].split(',')]
+
+
+def _accepts_json(accepted_content_types):
+    return JSON_MIME in accepted_content_types
+
 
 from megacms.common import testdata
 keep_this = testdata.ARTICLE

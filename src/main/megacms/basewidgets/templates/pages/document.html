@@ -20,11 +20,27 @@
             .html-widget, .newsletter-signup-widget {
                 padding: 1em;
             }
+
+            #admin, #page-content {
+                float: left;
+            }
+
+            #admin {
+                width: 30%;
+            }
+
+            #page-content {
+                width: 70%;
+            }
         </style>
     </head>
-    <body>
-        {% for child in children %}
-            {{ child }}
-        {% endfor %}
+    <body class="clearfix">
+        <div id="admin">
+        </div>
+        <div id="page-content">
+            {% for child in children %}
+                {{ child }}
+            {% endfor %}
+        </div>
     </body>
 </html>

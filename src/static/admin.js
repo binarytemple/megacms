@@ -6,45 +6,6 @@ megacms.admin = (function () {
 
     var module = {};
 
-    module.WidgetNode = function ($element, children) {
-        this.element = $element;
-        this.children = children || [];
-    };
-
-    module.findWidgets = function ($currentEl, parentNode, topLevelWidgets) {
-        var currentNode, $childEls, $childEl, i;
-
-        if ($currentEl.hasClass('widget')) {
-            currentNode = new module.WidgetNode($currentEl);
-
-            if (parentNode === null) {
-                // If parentNode is null, the currentNode is a top-level widget.
-                topLevelWidgets.push(currentNode);
-            } else {
-                // It is a child of the parent node which was passed in.
-                parentNode.children.push(currentNode);
-            }
-        }
-
-        $childEls = $currentEl.children();
-        for (i = 0; i < $childEls.length; i++) {
-            $childEl = $($childEls[i]);
-            module.findWidgets($childEl, currentNode || parentNode, topLevelWidgets);
-        }
-    };
-
-    module.buildWidgetTree = function ($body) {
-        var topLevelWidgets, $children, i;
-
-        topLevelWidgets = [];
-        $children = $body.children();
-
-        for (i = 0; i < $children.length; i++) {
-            module.findWidgets($($children[i]), null, topLevelWidgets);
-        }
-        return topLevelWidgets;
-    };
-
     module.indent = function (string, amount) {
         var prefix, i;
 
@@ -56,23 +17,76 @@ megacms.admin = (function () {
         return prefix + string;
     };
 
-    module.printWidgetTree = function (roots) {
-        function inner(nodes, depth) {
-            var i, node;
-            for (i = 0; i < nodes.length; i++) {
-                node = nodes[i];
-                console.log(module.indent(node.element.attr('class'), depth));
-                inner(node.children, depth + 1);
-            }
-        }
+    module.htmlDocumentOutline = function (documentOutline) {
+        function inner(current, depth) {
+            var i, node, ret;
+            ret = '';
 
-        inner(roots, 0);
+            if (depth === 0) {
+                ret += '<ul>';
+            }
+
+            ret += module.indent(module.widgetToHTML(current) + '\n', depth);
+
+            if (current.children.length > 0) {
+                ret += '<ul>';
+                for (i = 0; i < current.children.length; i++) {
+                    node = current.children[i];
+                    ret += inner(node, depth + 1);
+                }
+                ret += '</ul>';
+            }
+
+            if (depth === 0) {
+                ret += '</ul>'
+            }
+            return ret;
+        }
+        return inner(documentOutline, 0);
+    };
+
+    module.widgetToHTML = function (widget) {
+        return '<li><a href="/element/' + widget.key + '/update" data-widget-id="' + widget.key + '">Widget "' + widget.key + '</a></li>';
+    };
+
+    module.fetchDocumentOutline = function () {
+        $.ajaxSetup({
+            dataType: 'json'
+        });
+
+        return $.ajax({
+            url: window.location
+        });
     };
 
     $(document).ready(function () {
-        // Prints a nested outline of all the widgets on the page.
-        megacms.admin.printWidgetTree(
-            megacms.admin.buildWidgetTree($('body'))
+        var promise, documentOutline, htmlOutline, $admin, current;
+
+        $admin = $('#admin');
+
+        $admin.on(
+            {
+                mouseenter: function(event) {
+                    var id;
+                    id = $(this).data('widget-id');
+                    current = $('#' + id);
+                    current.css('outline', '1px solid fuchsia');
+                },
+                mouseleave: function (event) {
+                current.css('outline', 'none');
+                current = null;
+                }
+            },
+            'a'
+        );
+
+        promise = megacms.admin.fetchDocumentOutline();
+        promise.done(
+            function(data){
+                documentOutline = data;
+                htmlOutline = module.htmlDocumentOutline(documentOutline);
+                $admin.html(htmlOutline);
+            }
         );
     });
 
