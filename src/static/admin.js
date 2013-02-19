@@ -51,7 +51,8 @@ megacms.admin = (function () {
 
     module.fetchDocumentOutline = function () {
         $.ajaxSetup({
-            dataType: 'json'
+            dataType: 'json',
+            cache: false
         });
 
         return $.ajax({
