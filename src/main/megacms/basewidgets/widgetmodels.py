@@ -103,6 +103,7 @@ class Widget(Node):
 
     """
     cacheable = True
+    is_terminal = False
 
     subtree_cacheable = db.BooleanProperty(default=True)
     element_parent = db.ReferenceProperty(required=False)
@@ -195,8 +196,9 @@ class Document(ResourceBase, Widget):
 
 class ViewResource(ResourceBase):
     cacheable = False
-    terminal = True
+    is_terminal = True
 
 
 class HTMLWidget(Widget):
+    is_terminal = True
     content = TemplateStringProperty()

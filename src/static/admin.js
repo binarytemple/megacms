@@ -46,7 +46,7 @@ megacms.admin = (function () {
     };
 
     module.widgetToHTML = function (widget) {
-        return '<li><a href="/element/' + widget.key + '/update" data-widget-id="' + widget.key + '">Widget "' + widget.key + '</a></li>';
+        return '<li><a href="/element/' + widget.key + '/update" data-widget-id="' + widget.key + '">' + widget.class_name + ' (terminal: ' + widget.is_terminal + ')</a></li>';
     };
 
     module.fetchDocumentOutline = function () {

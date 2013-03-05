@@ -23,6 +23,8 @@ def default_get(request, node):
     data.update(
         css_classes=css_classes,
         key=str(node.key()),
+        class_name=node.__class__.__name__,
+        is_terminal=node.is_terminal,
     )
     return NodeResponse(data)
 
