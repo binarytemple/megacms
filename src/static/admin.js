@@ -6,6 +6,23 @@ megacms.admin = (function () {
 
     var module = {};
 
+    module.templates = {};
+
+    module.init = function () {
+        module.initTemplates();
+    };
+
+    module.initTemplates = function () {
+        var ids = ['widget-list-item'],
+            i,
+            $el;
+
+        for(i=0; i < ids.length; i++) {
+            $el = $('#' + ids[i]);
+            module.templates[ids[i]] = Handlebars.compile($el.html());
+        }
+    };
+
     module.indent = function (string, amount) {
         var prefix, i;
 
@@ -26,7 +43,7 @@ megacms.admin = (function () {
                 ret += '<ul>';
             }
 
-            ret += module.indent(module.widgetToHTML(current) + '\n', depth);
+            ret += module.indent(module.templates['widget-list-item'](current) + '\n', depth);
 
             if (current.children.length > 0) {
                 ret += '<ul>';
@@ -43,10 +60,6 @@ megacms.admin = (function () {
             return ret;
         }
         return inner(documentOutline, 0);
-    };
-
-    module.widgetToHTML = function (widget) {
-        return '<li><a href="/element/' + widget.key + '/update" data-widget-id="' + widget.key + '">' + widget.class_name + ' (terminal: ' + widget.is_terminal + ')</a></li>';
     };
 
     module.fetchDocumentOutline = function () {
@@ -78,9 +91,10 @@ megacms.admin = (function () {
                 current = null;
                 }
             },
-            'a'
+            'li'
         );
 
+        megacms.admin.init();
         promise = megacms.admin.fetchDocumentOutline();
         promise.done(
             function(data){
