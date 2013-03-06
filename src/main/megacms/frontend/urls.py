@@ -4,6 +4,9 @@ import megacms.frontend.views
 
 urlpatterns = patterns(
     '',
+    url(r'element/new',
+        megacms.frontend.views.create_element),
+
     url(r'element/(?P<element_id>[\w|-]+)/update',
         megacms.frontend.views.update_element),
 

@@ -12,7 +12,7 @@ from django.template import RequestContext
 from django.utils.safestring import mark_safe
 from django.shortcuts import render_to_response
 
-from megacms.basewidgets.widgetmodels import URLNode, Widget, Document
+from megacms.basewidgets.widgetmodels import URLNode, Widget, Document, HTMLWidget
 from megacms.common.utils import camel_case_to_underscore
 from megacms.frontend.exceptions import (
     NotAllowed, InterruptPageProcessing, ContentTypeUnsupported)
@@ -270,6 +270,22 @@ def update_element(request, element_id):
     return render_to_response('form.html', dict(
         form=Form(instance=element),
     ), RequestContext(request))
+
+
+def create_element(request):
+    parent_element_id = request.GET['parent-id']
+    parent_element = get_element(request, parent_element_id)
+
+    class Form(djangoforms.ModelForm):
+        class Meta():
+            model = HTMLWidget
+            exclude = ( '_class',) # PolyModel workaround
+
+    return render_to_response('form.html', dict(
+        form=Form(initial=dict(
+            element_parent=parent_element)
+        )
+    ))
 
 
 def _get_accepted_content_types(request):

@@ -57,7 +57,7 @@
     {% verbatim %}
         <script type="text/html" id="widget-list-item">
             <li data-widget-id="{{ key }}">
-                {{ class_name }} <a href="/element/{{ key }}/update">Edit</a>{{ #unless is_terminal }} <a href="#add-child">Add Child</a>{{ /unless }}
+                {{ class_name }} <a href="/element/{{ key }}/update">Edit</a>{{ #unless is_terminal }} <a href="element/new?parent-id={{ key }}">Add Child</a>{{ /unless }}
             </li>
         </script>
     {% endverbatim %}
